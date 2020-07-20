@@ -3,18 +3,13 @@
 [![npm version](https://badge.fury.io/js/react-native-callkeep.svg)](https://badge.fury.io/js/react-native-callkeep)
 [![npm downloads](https://img.shields.io/npm/dm/react-native-callkeep.svg?maxAge=2592000)](https://img.shields.io/npm/dm/react-native-callkeep.svg?maxAge=2592000)
 
-**React Native CallKeep** utilises a brand new iOS 10 framework **CallKit** and Android **ConnectionService** to make the life easier for VoIP developers using React Native.
+**React Native CallKeep** utilises a brand new iOS 10 framework **CallKit** to make the life easier for VoIP developers using React Native.
 
 For more information about **CallKit** on iOS, please see [Official CallKit Framework Document](https://developer.apple.com/reference/callkit?language=objc) or [Introduction to CallKit by Xamarin](https://developer.xamarin.com/guides/ios/platform_features/introduction-to-ios10/callkit/)
-
-For more information about **ConnectionService** on Android, please see [Android Documentation](https://developer.android.com/reference/android/telecom/ConnectionService) and [Build a calling app](https://developer.android.com/guide/topics/connectivity/telecom/selfManaged)
 
 # Demo
 
 A demo of `react-native-callkeep` is available in the [wazo-react-native-demo](https://github.com/wazo-pbx/wazo-react-native-demo) repository.
-
-## Android
-![Connection Service](docs/pictures/connection-service.jpg)
 
 ## iOS
 ![Connection Service](docs/pictures/call-kit.png)
@@ -28,7 +23,6 @@ yarn add react-native-callkeep
 ```
 
 - [iOS](docs/ios-installation.md)
-- [Android](docs/android-installation.md)
 
 # Usage
 
@@ -41,14 +35,6 @@ const options = {
   ios: {
     appName: 'My app name',
   },
-  android: {
-    alertTitle: 'Permissions required',
-    alertDescription: 'This application needs to access your phone accounts',
-    cancelButton: 'Cancel',
-    okButton: 'ok',
-    imageName: 'phone_account_icon',
-    additionalPermissions: [PermissionsAndroid.PERMISSIONS.example]
-  }
 };
 
 RNCallKeep.setup(options).then(accepted => {});
@@ -70,23 +56,6 @@ RNCallKeep.setup(options).then(accepted => {});
       If provided, the maximum number of calls in a single group, used for conferencing (Default: 1, no conferencing)
     - `supportsVideo`: boolean (optional)
       If provided, whether or not the application supports video calling (Default: true)
-  - `android`: object
-    - `alertTitle`: string (required)
-      When asking for _phone account_ permission, we need to provider a title for the `Alert` to ask the user for it
-    - `alertDescription`: string (required)
-      When asking for _phone account_ permission, we need to provider a description for the `Alert` to ask the user for it
-    - `cancelButton`: string (required)
-      Cancel button label
-    - `okButton`: string (required)
-      Ok button label
-    - `imageName`: string (optional)
-      The image to use in the Android Phone application's native UI for enabling/disabling calling accounts. Should be a 48x48 HDPI
-      grayscale PNG image. Must be in your drawable resources for the parent application. Must be lowercase and underscore (_) characters
-      only, as Java doesn't like capital letters on resources.
-    - `additionalPermissions`: [PermissionsAndroid] (optional)
-      Any additional permissions you'd like your app to have at first launch. Can be used to simplify permission flows and avoid
-      multiple popups to the user at different times.
-
 ## Constants
 
 To make passing the right integer into methods easier, there are constants that are exported from the module.
@@ -110,40 +79,9 @@ console.log(CK_CONSTANTS.END_CALL_REASONS.FAILED) // outputs 1
 
 ## Methods
 
-### setAvailable
-_This feature is available only on Android._
-
-Tell _ConnectionService_ that the device is ready to make outgoing calls via the native Phone app.
-If not the user will be stuck in the build UI screen without any actions.
-Eg: Call it with `false` when disconnected from the sip client, when your token expires, when your user log out ...
-Eg: When your used log out (or the connection to your server is broken, etc..), you have to call `setAvailable(false)` so CallKeep will refuse the call and your user will not be stuck in the native UI.
-
-```js
-RNCallKeep.setAvailable(true);
-```
-
-- `active`: boolean
-  - Tell whether the app is ready or not
-
-### setCurrentCallActive
-_This feature is available only on Android._
-
-Mark the current call as active (eg: when the callee has answered).
-Necessary to set the correct Android capabilities (hold, mute) once the call is set as active.
-Be sure to set this only after your call is ready for two way audio; used both incoming and outgoing calls.
-
-```js
-RNCallKeep.setCurrentCallActive(uuid);
-```
-
-- `uuid`: string
-  - The `uuid` used for `startCall` or `displayIncomingCall`
-
 ### isCallActive
-_This feature is available only on IOS._
-
-Returns true if the UUID passed matches an existing and answered call. 
-This will return true ONLY if the call exists and the user has already answered the call. It will return false 
+Returns true if the UUID passed matches an existing and answered call.
+This will return true ONLY if the call exists and the user has already answered the call. It will return false
 if the call does not exist or has not been answered. This is exposed to both React Native and Native sides.
 This was exposed so a call can be canceled if ringing and the user answered on a different device.
 
@@ -153,6 +91,7 @@ RNCallKeep.isCallActive(uuid);
 
 - `uuid`: string
   - The `uuid` used for `startCall` or `displayIncomingCall`
+
 
 ### displayIncomingCall
 
@@ -176,31 +115,11 @@ RNCallKeep.displayIncomingCall(uuid, handle, localizedCallerName);
   - `false` (default)
   - `true` (you know... when not false)
 
-### answerIncomingCall
-_This feature is available only on Android._
-
-Use this to tell the sdk a user answered a call from the app UI.
-
-```js
-RNCallKeep.answerIncomingCall(uuid)
-```
-- `uuid`: string
-  - The `uuid` used for `startCall` or `displayIncomingCall`
-
 
 ### startCall
-
-When you make an outgoing call, tell the device that a call is occurring. The argument list is slightly
-different on iOS and Android:
-
 iOS:
 ```js
 RNCallKeep.startCall(uuid, handle, contactIdentifier, handleType, hasVideo);
-```
-
-Android:
-```js
-RNCallKeep.startCall(uuid, handle, contactIdentifier);
 ```
 
 - `uuid`: string
@@ -233,7 +152,7 @@ RNCallKeep.updateDisplay(uuid, displayName, handle)
 
 ### endCall
 
-When finish an incoming/outgoing call.  
+When finish an incoming/outgoing call.
 (When user actively chooses to end the call from your app's UI.)
 
 ```js
@@ -264,7 +183,7 @@ RNCallKeep.rejectCall(uuid);
 
 ### reportEndCallWithUUID
 
-Report that the call ended without the user initiating.  
+Report that the call ended without the user initiating.
 (Not ended by user, is usually due to the following reasons)
 
 
@@ -280,7 +199,7 @@ RNCallKeep.reportEndCallWithUUID(uuid, reason);
     - Remote user ended call: 2
     - Remote user did not answer: 3
     - Call Answered elsewhere: 4
-    - Call declined elsewhere: 5 (on Android this will map to Remote user ended call if you use the constants)
+    - Call declined elsewhere: 5
     - Missed: 6 (on iOS this will map to remote user ended call)
   - Access reasons as constants
   ```js
@@ -316,7 +235,6 @@ RNCallKeep.setOnHold(uuid, true)
 ### checkIfBusy
 
 Checks if there are any active calls on the device and returns a promise with a boolean value (`true` if there're active calls, `false` otherwise).
-_This feature is available only on iOS._
 
 ```js
 RNCallKeep.checkIfBusy();
@@ -325,73 +243,16 @@ RNCallKeep.checkIfBusy();
 ### checkSpeaker
 
 Checks if the device speaker is on and returns a promise with a boolean value (`true` if speaker is on, `false` otherwise).
-_This feature is available only on iOS._
 
 ```js
 RNCallKeep.checkSpeaker();
 ```
 
-### supportConnectionService (async)
-
-Tells if `ConnectionService` is available on the device (returns a boolean).
-
-_This feature is available only on Android._
-
-```js
-RNCallKeep.supportConnectionService();
-```
-
-### hasPhoneAccount (async)
-
-Checks if the user has enabled the [phone account](https://developer.android.com/reference/android/telecom/PhoneAccount) for your application.
-A phone account must be enable to be able to display UI screen on incoming call and make outgoing calls from native Contact application.
-
-Returns a promise of a boolean.
-
-_This feature is available only on Android._
-
-```js
-await RNCallKeep.hasPhoneAccount();
-```
-
-### hasOutgoingCall (async)
-
-_This feature is available only on Android, useful when waking up the application for an outgoing call._
-
-When waking up the Android application in background mode (eg: when the application is killed and the user make a call from the native Phone application).
-The user can hang up the call before your application has been started in background mode, and you can lost the `RNCallKeepPerformEndCallAction` event.
-
-To be sure that the outgoing call is still here, you can call `hasOutgoingCall` when you app waken up.
-
-
-```js
-const hasOutgoingCall = await RNCallKeep.hasOutgoingCall();
-```
-
-### hasDefaultPhoneAccount
-
-Checks if the user has set a default [phone account](https://developer.android.com/reference/android/telecom/PhoneAccount).
-If the user has not set a default they will be prompted to do so with an alert.
-
-This is a workaround for an [issue](https://github.com/wazo-pbx/react-native-callkeep/issues/33) affecting some Samsung devices.
-
-_This feature is available only on Android._
-
-```js
-const options = {
-  alertTitle: 'Default not set',
-  alertDescription: 'Please set the default phone account'
-};
-
-RNCallKeep.hasDefaultPhoneAccount(options);
-```
-
-
 ## Events
 
 ### didReceiveStartCallAction
 
-Device sends this event once it decides the app is allowed to start a call, either from the built-in phone screens (iOS/_Recents_, Android/_Contact_),
+Device sends this event once it decides the app is allowed to start a call, either from the built-in phone screens (iOS/_Recents_),
 or by the app calling `RNCallKeep.startCall`.
 
 Try to start your app call action from here (e.g. get credentials of the user by `data.handle` and/or send INVITE to your SIP server)
@@ -521,8 +382,6 @@ RNCallKeep.addEventListener('didPerformDTMFAction', ({ digits, callUUID }) => {
 
 ### - didLoadWithEvents
 
-iOS only.
-
 Called as soon as JS context initializes if there were some actions performed by user before JS context has been created.
 
 Since iOS 13, you must display incoming call on receiving PushKit push notification. But if app was killed, it takes some time to create JS context. If user answers the call (or ends it) before JS context has been initialized, user actions will be passed as events array of this event. Similar situation can happen if user would like to start a call from Recents or similar iOS app, assuming that your app was in killed state.
@@ -540,9 +399,6 @@ RNCallKeep.addEventListener('didLoadWithEvents', (events) => {
     Object with data passed together with specific event so it can be handled in the same way like original event, for example `({ callUUID })` for `answerCall` event if `name` is `RNCallKeepPerformAnswerCallAction`
 
 ### - checkReachability
-
-On Android when the application is in background, after a certain delay the OS will close every connection with informing about it.
-So we have to check if the application is reachable before making a call from the native phone application.
 
 ```js
 RNCallKeep.addEventListener('checkReachability', () => {
@@ -594,20 +450,10 @@ class RNCallKeepExample extends React.Component {
         maximumCallGroups: '1',
         maximumCallsPerCallGroup: '1'
       },
-      android: {
-        alertTitle: 'Permissions Required',
-        alertDescription:
-          'This application needs to access your phone calling accounts to make calls',
-        cancelButton: 'Cancel',
-        okButton: 'ok',
-        imageName: 'sim_icon',
-        additionalPermissions: [PermissionsAndroid.PERMISSIONS.READ_CONTACTS]
-      }
     };
 
     try {
       RNCallKeep.setup(options);
-      RNCallKeep.setAvailable(true); // Only used for Android, see doc above.
     } catch (err) {
       console.error('initializeCallKeep error:', err.message);
     }
@@ -643,7 +489,6 @@ class RNCallKeepExample extends React.Component {
     this.currentCallId = null;
   };
 
-  // Currently iOS only
   onIncomingCallDisplayed = (data) => {
     let { error } = data;
     // You will get this event after RNCallKeep finishes showing incoming call UI
@@ -689,9 +534,9 @@ In some case your application can be unreachable :
 - when the user kill the application
 - when it's in background since a long time (eg: after ~5mn the os will kill all connections).
 
-To be able to wake up your application to display the incoming call, you can use [https://github.com/ianlin/react-native-voip-push-notification](react-native-voip-push-notification) on iOS or BackgroundMessaging from [react-native-firebase](https://rnfirebase.io/docs/v5.x.x/messaging/receiving-messages#4)-(Optional)(Android-only)-Listen-for-FCM-messages-in-the-background).
+To be able to wake up your application to display the incoming call, you can use [https://github.com/ianlin/react-native-voip-push-notification](react-native-voip-push-notification) on iOS
 
-You have to send a push to your application, like with Firebase for Android and with a library supporting PushKit pushes for iOS.
+You have to send a push to your application, like with a library supporting PushKit pushes for iOS.
 
 ### PushKit
 
@@ -714,11 +559,6 @@ Since iOS 13, you'll have to report the incoming calls that wakes up your applic
 
 ## Debug
 
-### Android
-
-```
-adb logcat *:S RNCallKeepModule:V
-```
 
 ## Troubleshooting
 - Ensure that you construct a valid `uuid` by importing the `uuid` library and running `uuid.v4()` as shown in the examples. If you don't do this and use a custom string, the incoming call screen will never be shown on iOS.
