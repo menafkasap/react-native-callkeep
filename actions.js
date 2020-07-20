@@ -16,13 +16,10 @@ const RNCallKeepProviderReset = 'RNCallKeepProviderReset';
 const RNCallKeepCheckReachability = 'RNCallKeepCheckReachability';
 const RNCallKeepShowIncomingCallUi = 'RNCallKeepShowIncomingCallUi';
 const RNCallKeepDidLoadWithEvents = 'RNCallKeepDidLoadWithEvents';
-const isIOS = Platform.OS === 'ios';
 
 const didReceiveStartCallAction = handler => {
-  if (isIOS) {
-    // Tell CallKeep that we are ready to receive `RNCallKeepDidReceiveStartCallAction` event and prevent delay
-    RNCallKeepModule._startCallActionEventListenerAdded();
-  }
+  // Tell CallKeep that we are ready to receive `RNCallKeepDidReceiveStartCallAction` event and prevent delay
+  RNCallKeepModule._startCallActionEventListenerAdded();
 
   return eventEmitter.addListener(RNCallKeepDidReceiveStartCallAction, (data) => handler(data));
 };
