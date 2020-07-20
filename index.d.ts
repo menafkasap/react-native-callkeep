@@ -172,7 +172,7 @@ export default class RNCallKeep {
 
   }
 
-  static setCurrentCallActive(callUUID: string) {
+  static setCurrentCallActive() {
 
   }
 
